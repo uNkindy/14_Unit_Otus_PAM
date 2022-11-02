@@ -26,7 +26,22 @@ day wheel night admin
 - в противном случае, скрипт завершает работу с кодом выхода 0.
 
 #### 4. В целях проверки работы скрипта были сделаны следующие тесты:
+- Для выполнения тестов в выводах скрипта добавлены отладочные __echo__!  
 1. Логирование пользователя day, который присутствует в группе __admin__:
 ```console
+[root@server vagrant]# ./logging.sh day   
+You are in group Admin, continue logging...
+```
+2. Логирование пользователя night, сегодня рабочий день:
+```console
+[root@server vagrant]# ./logging.sh night
+Today is working day, you can login,  night
+```
+3. В целях проверки логирвания в выходной день, изменим Sat на Wed:
+```console
+[root@server vagrant]# ./logging.sh day
+You are in group Admin, continue logging...
 
+[root@server vagrant]# ./logging.sh night
+Today is day off
 ```
