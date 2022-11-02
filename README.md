@@ -45,3 +45,9 @@ You are in group Admin, continue logging...
 [root@server vagrant]# ./logging.sh night
 Today is day off
 ```
+
+#### 5. Путь на указанный скрипт нужно указать в кофигурационном файле /etc/pam.d/sshd:
+```console
+account required pam_nologin.so
+account required pam_exec.so /usr/local/bin/logging.sh
+```
