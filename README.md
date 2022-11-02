@@ -5,41 +5,28 @@
 Last login: Mon Oct 31 17:31:57 2022 from 192.168.2.130
 [vagrant@server ~]$ sudo useradd day
 ```
-#### 2. Создал 3 новых пользователей: day, night, friday.
+#### 2. В виртуальной машине создал пользователей day, night, friday. Пользователя day добавил в группы admin, night, wheel.
 ```console
-[vagrant@server ~]$ sudo useradd day
-[vagrant@server ~]$ sudo useradd night
-[vagrant@server ~]$ sudo useradd friday
+[root@server vagrant]# id day -Gn
+day wheel night admin
 ```
-#### 3. Добавил пароли для 3 новых пользователей:
+#### 3. Для того, чтобы выполнить условия домашнего задания был выбран вариант написания скрипта для модуля pam_exec.so, удовлетворяющий следующим условиям:
+- скрипт проверяет, состоит ли логирующийся пользователь в группе __admin__. Если состоит, то скрипт возвращает 0.
+- если пользователь не состоит в группе __admin__, то скрипт проверяет какой сегодня день. Если рабочий день, то скрипт возвращает 0. 
+- в случае, если сегодня Sun или Sat, скрипт возвращает 1, модуль pam_exec запрещает логирование на хосте.
+
+#### 4. Разбор скрипта:
+- обьявлены и инициализированы 2 переменные:
+    - admin - хранит название целевой группы;
+    - flag - переменная, изменяющая свое значение в случае нахождения группы admin в перечне групп лоирующегося пользователя;
+- циклом for пошагово сравниваются группы логируюшегося пользователя с целевой группой. В случае совпадения переменная flag принимает значение 1.
+- в случае, если переменная flag = 1, скрипт заканчивает свою работу с выходом 0;
+- в случае, если переменная flag = 0, далее рассматривается день недели, когда пользователь пытается залогироваться на хосте;
+- оператор ветвления if проверяет, какой сегодня день недели. Если сегодня суббота или воскресение, скрипт завершает работу с кодом выхода 1;
+- в противном случае, скрипт завершает работу с кодом выхода 0.
+
+#### 4. В целях проверки работы скрипта были сделаны следующие тесты:
+1. Логирование пользователя day, который присутствует в группе __admin__:
 ```console
-[vagrant@server ~]$ echo "Otus2019"|sudo passwd --stdin day &&\
-> echo "Otus2019" | sudo passwd --stdin night &&\
-> echo "Otus2019" | sudo passwd --stdin friday
-Changing password for user day.
-passwd: all authentication tokens updated successfully.
-Changing password for user night.
-passwd: all authentication tokens updated successfully.
-Changing password for user friday.
-passwd: all authentication tokens updated successfully.
+
 ```
-#### 4. Проверил возможность регистрации под пользователем day:
-```console
-[vagrant@server ~]$ su day
-Password:
-[day@server vagrant]$
-```
-#### 5. Добавил изменения в конфигурационный файл /etc/security/time.conf
-#### 6. Настроил PAM, добавив следующе строчки в кофигурационный файл /etc/pam.d/sshd:
-```console
-account required pam_nologin.so
-account required pam_time.so
-```
-#### 7. Проверил доступность виртуальной машины по протоколу ssh для пользователя day:
-```console
-[kita@devops ~]$ ssh day@192.168.2.71
-day@192.168.2.71's password:
-Last login: Tue Nov  1 09:04:30 2022
-[day@server ~]$
-```
-#### 8. 
